@@ -4,79 +4,110 @@ namespace PasswordVerifier
 {
     public class PasswordVerify
     {
-
-       // This is a work in progress. My tests are not all passing.
-       // I'm still working on this (this practice is really helping)...
-       // but want to push the
-       // Solution up. The OddEvenKata should be good to go.
-
-
-
-
-
-
-
-        public static bool Verify(string password)
+        public static string Verify(string password)
         {
-            //string tooShort = "Must be 9 or more characters.";
-            //string isNull = "Please enter a password";
-            //string needsUpper = "Must contain at least 1 uppercase letter.";
-            //string needsLower = "Must contain at least on lowercase letter.";
-            //string needsNum = "Must contain at least one number.";
+            string errorCode = "";
+            string lengthCheck;
+            string nullCheck;
+            string hasUpperCheck;
+            string hasLowerCheck;
+            string hasNumCheck;
+            // We'll build an error code string in this method 
+            // that we'll use in another method to output 
+            // a message about the password:
+            //1 password should be larger than 8 chars
+            //2 password should not be null
+            //3 password should have one uppercase letter at least
+            //4 password should have one lowercase letter at least
+            //5 password should have one number at least
 
-            int tooShortCheck = password.Length > 8 ? 1 : 0;
-            int notNullCheck = !String.IsNullOrWhiteSpace(password) ? 1 : 0;
-            int hasUpperCheck = 0;
+            if (String.IsNullOrEmpty(password)) 
+            {
+                return "12345";  //all conditions fail
+            }
+
+            lengthCheck = password.Length > 8 ? "" : "1"; //length check
+
+            nullCheck = ""; //not needed but added for structure
+
+            hasUpperCheck = "3"; //send a 3 if no upper is found
             for (int i = 0; i < password.Length; i++)
             {
                 if (char.IsUpper(password[i]))
                 {
-                    hasUpperCheck = 1;
+                    hasUpperCheck = ""; //upper found, do not include in error code
                     break;
                 }
             }
-            int hasLowerCheck = 0;
+
+            hasLowerCheck = "4"; //send a 4 if no lower is found
             for (int i = 0; i < password.Length; i++)
             {
                 if (char.IsLower(password[i]))
                 {
-                    hasLowerCheck = 1;
+                    hasLowerCheck = ""; //lower found, do not include in error code
                     break;
                 }
             }
-            int hasNumCheck = 0;
+
+            hasNumCheck = "5"; //send a 5 if no number is found
             for (int i = 0; i < password.Length; i++)
             {
                 if (char.IsDigit(password[i]))
                 {
-                    hasNumCheck = 1;
+                    hasNumCheck = ""; //number found, do not include in error code
                     break;
                 }
             }
-
-            int first3MustPass2 = (tooShortCheck + notNullCheck + hasUpperCheck);
-            if (first3MustPass2 < 2)
-            {
-                return false;
-            }
-            if (first3MustPass2 + hasLowerCheck + hasNumCheck > 4)
-            {
-                return true;
-            }
-            else return false;
-            
+            //length, null, upper, lower, num - in that order
+            errorCode += lengthCheck + nullCheck + hasUpperCheck + hasLowerCheck + hasNumCheck;
+            return errorCode;
         }
 
+        public static string PasswordMessage(string errorCode)
+        {
+            string output = "Password: ";
+            if (errorCode == "") //no errors
+            {
+                output = "Password accepted";
+            }
+            if (errorCode.Contains("1")) //contained 8 or less characters
+            {
+                output += "\n - Must be 9 or more characters";
+            }
+            if (errorCode.Contains("2")) //was null
+            {
+                output += "\n - Cannot be blank";
+            }
+            if (errorCode.Contains("3")) //has no uppercase
+            {
+                output += "\n - Must contain at least one uppercase character";
+            }
+            if (errorCode.Contains("4"))
+            {
+                output += "\n - Must contain at least one lowercase character";
+            }
+            if (errorCode.Contains("5"))
+            {
+                output += "\n - Must contain at least one number";
+            }
+            
+            return output;
+        }
 
     }
     public class Program
     {
-        
-
-
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            string output = "";
+            while (output != "Password accepted")
+            {
+                Console.WriteLine("Please enter a password");
+                string password = Console.ReadLine();
+                output = PasswordVerify.PasswordMessage(PasswordVerify.Verify(password));
+                Console.WriteLine(output);
+            }   
         }
     }
 }
